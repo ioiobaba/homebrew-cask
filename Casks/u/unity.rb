@@ -1,0 +1,54 @@
+cask "unity" do
+  arch arm: "Arm64"
+  livecheck_arch = on_arch_conditional arm: "ARM64", intel: "X86_64"
+
+  version "6000.6.4f1,12bfff696524"
+  sha256 arm:   "6289ffed19783392b8c376ff1e16076829bf722e6011fbda269cb33815bd8e21",
+         intel: "49c404be2afcfbcbf22f6871c2319a77222f6cc9771c46351b656244844ae154"
+
+  url "https://download.unity3d.com/download_unity/#{version.csv.second}/MacEditorInstaller#{arch}/Unity-#{version.csv.first}.pkg"
+  name "Unity Editor"
+  desc "Platform for 3D content"
+  homepage "https://unity.com/"
+
+  livecheck do
+    url "https://services.api.unity.com/unity/editor/release/v1/releases?platform=MAC_OS&stream=SUPPORTED&architecture=#{livecheck_arch}&limit=1&offset=0"
+    regex(%r{/(\h+)/MacEditorInstaller#{arch}/Unity[._-]v?(\d+(?:\.\d+)+(?:f\d+)?)\.pkg}i)
+    strategy :json do |json, regex|
+      match = nil
+      json["results"]&.each do |item|
+        item["downloads"]&.each do |download|
+          match = download["url"]&.match(regex)
+          break if match
+        end
+        break if match
+      end
+      next unless match
+
+      "#{match[2]},#{match[1]}"
+    end
+  end
+
+  depends_on cask: "unity-hub"
+  depends_on :macos
+
+  pkg "Unity-#{version.csv.first}.pkg"
+
+  uninstall quit:    "com.unity3d.UnityEditor5.x",
+            pkgutil: "com.unity3d.UnityEditor5.x",
+            delete:  "/Applications/Unity"
+
+  zap delete: "/Library/Application Support/Unity",
+      trash:  [
+        "/Library/Application Support/Unity",
+        "~/Library/Application Support/Unity*",
+        "~/Library/Caches/com.unity3d.UnityEditor",
+        "~/Library/Logs/Unity",
+        "~/Library/Preferences/com.unity.BugReporterV2.plist",
+        "~/Library/Preferences/com.unity3d.UnityEditor5.x.plist",
+        "~/Library/Preferences/com.unity3d.unityhub.plist",
+        "~/Library/Preferences/unity.DefaultCompany.*",
+        "~/Library/Saved Application State/com.unity3d.unityhub.savedState",
+        "~/Library/Unity",
+      ]
+end

@@ -1,0 +1,51 @@
+cask "activitywatch" do
+  os macos: "macos-x86_64.dmg", linux: "linux-x86_64.AppImage"
+
+  version "0.14.0"
+  sha256 arm:          "02c57f5c8fd63bf27191154a2f5181bb9bbca9ab4191f57f75a6b09d9dcc8ddd",
+         intel:        "02c57f5c8fd63bf27191154a2f5181bb9bbca9ab4191f57f75a6b09d9dcc8ddd",
+         x86_64_linux: "5a94338bf1e0f6d9d9f960d9e423cea2d1affd0a8b7eb21f96d3c19711f38346"
+
+  on_macos do
+    url "https://github.com/ActivityWatch/activitywatch/releases/download/v#{version}/activitywatch-v#{version}-#{os}"
+
+    app "ActivityWatch.app"
+
+    zap trash: [
+      "~/Library/Application Support/activitywatch",
+      "~/Library/Caches/activitywatch",
+      "~/Library/Logs/activitywatch",
+    ]
+
+    caveats do
+      requires_rosetta
+    end
+  end
+  on_linux do
+    url "https://github.com/ActivityWatch/activitywatch/releases/download/v#{version}/activitywatch-#{os}"
+
+    depends_on arch: :x86_64
+
+    app_image "activitywatch-#{os}", target: "ActivityWatch.AppImage"
+
+    zap trash: [
+      "~/.cache/activitywatch",
+      "~/.config/activitywatch",
+      "~/.local/share/activitywatch",
+    ]
+  end
+
+  name "ActivityWatch"
+  desc "Time tracker"
+  homepage "https://activitywatch.net/"
+
+  livecheck do
+    url :url
+    strategy :github_latest
+  end
+
+  conflicts_with cask: [
+    "activitywatch@beta",
+    "activitywatch@experimental",
+  ]
+end

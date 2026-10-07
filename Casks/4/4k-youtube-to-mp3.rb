@@ -1,0 +1,30 @@
+cask "4k-youtube-to-mp3" do
+  # NOTE: "3" is not a version number, but an intrinsic part of the product name
+  arch arm: "arm64", intel: "x64"
+
+  version "26.3.5"
+  sha256 arm:   "c542a0d15277e9eb3f10cef2e6fbd247682097becd7bf58c0dbebb888c76de0c",
+         intel: "5f5baffd545a779731442d17ff5b5766287320a7ba21c55a5e69755531fca8b0"
+
+  url "https://dl.4kdownload.com/app/4kyoutubetomp3_#{version}_#{arch}.dmg"
+  name "4K YouTube to MP3"
+  desc "Turn YouTube links into MP3 files"
+  homepage "https://www.4kdownload.com/products/youtubetomp3/1"
+
+  livecheck do
+    url "https://www.4kdownload.com/download"
+    regex(%r{href=.*?/4kyoutubetomp3[._-]v?(\d+(?:\.\d+)+)[._-]#{arch}\.dmg}i)
+  end
+
+  depends_on macos: :monterey
+
+  app "4K YouTube to MP3.app"
+
+  uninstall quit: "com.openmedia.4kyoutubetomp3"
+
+  zap trash: [
+    "~/Library/Application Support/4kdownload.com",
+    "~/Library/Preferences/com.4kdownload.*",
+    "~/Library/Saved Application State/com.openmedia.4kyoutubetomp3.savedState",
+  ]
+end

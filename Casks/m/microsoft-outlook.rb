@@ -1,0 +1,62 @@
+cask "microsoft-outlook" do
+  on_ventura :or_older do
+    on_big_sur :or_older do
+      version "16.77.23091703"
+      sha256 "becfe797d1c799a4366385f449e42f7377bd3d6de5d4db20e37bd36ba2f24ef5"
+    end
+    on_monterey do
+      version "16.89.24091630"
+      sha256 "24731ffca0b78c02f2544b145b4a103bd11b724fef0dc938bf5899e156495a72"
+    end
+    on_ventura do
+      version "16.101.25100321"
+      sha256 "db4ce5854bbcb60284041f7a04e2f37e317cff578857486af78069b3935c5e86"
+    end
+
+    livecheck do
+      skip "Legacy version"
+    end
+  end
+  on_sonoma :or_newer do
+    version "16.113.26091740"
+    sha256 "c8ce6b36b6c2f4b5bf1b907e006376b12a18e6bdebcbf5178334733db95fc5d7"
+
+    livecheck do
+      url "https://go.microsoft.com/fwlink/p/?linkid=525137"
+      strategy :header_match
+    end
+  end
+
+  url "https://res.public.onecdn.static.microsoft/mro1cdnstorage/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/Microsoft_Outlook_#{version}_Installer.pkg"
+  name "Microsoft Outlook"
+  desc "Email client"
+  homepage "https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-business"
+
+  auto_updates true
+  conflicts_with cask: [
+    "microsoft-office",
+    "microsoft-office-businesspro",
+  ]
+  depends_on :macos
+
+  pkg "Microsoft_Outlook_#{version}_Installer.pkg",
+      choices: [
+        {
+          "choiceIdentifier" => "com.microsoft.autoupdate", # Office16_all_autoupdate.pkg
+          "choiceAttribute"  => "selected",
+          "attributeSetting" => 0,
+        },
+      ]
+
+  uninstall launchctl: "com.microsoft.office.licensingV2.helper",
+            quit:      "com.microsoft.autoupdate2",
+            pkgutil:   [
+              "com.microsoft.package.Microsoft_Outlook.app",
+              "com.microsoft.pkg.licensing",
+            ]
+
+  zap trash: [
+    "~/Library/Application Scripts/com.microsoft.Outlook",
+    "~/Library/Containers/com.microsoft.Outlook",
+  ]
+end
